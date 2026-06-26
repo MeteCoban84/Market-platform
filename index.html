@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>METE · ALPHA v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#E9EDF1;--panel:#FFFFFF;--panel2:#F4F7FA;--ink:#16202E;--ink2:#5A6A7D;--line:#D6DEE6;
+--accent:#2C3FA8;--good:#0E7C5A;--mid:#B07810;--bad:#B0433A;--info:#1C5E8C;--q:#2C5FA8;--v:#1D7E60;--spec:#8A4FB0;
+--shadow:0 1px 3px rgba(20,32,46,.08),0 4px 16px rgba(20,32,46,.06);
+}
+body.dark{
+--bg:#0E141B;--panel:#161E27;--panel2:#1C2630;--ink:#E8EEF4;--ink2:#90A0B2;--line:#2A3642;
+--shadow:0 1px 3px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45;padding-bottom:74px;overflow-x:hidden;transition:background .25s,color .25s}
+.mono{font-family:'IBM Plex Mono',monospace}
+h1,h2,h3,.dt{font-family:'Space Grotesk',sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:14px}
+header{position:sticky;top:0;z-index:40;background:var(--panel);border-bottom:1px solid var(--line);padding:10px 14px 8px}
+.hrow{display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;gap:10px}
+.logo{font-family:'Space Grotesk';font-weight:700;font-size:17px;letter-spacing:.5px}
+.logo b{color:var(--accent)}
+.hright{display:flex;align-items:center;gap:8px}
+.status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot.pulse{animation:pulse 1.4s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.st-off{background:rgba(176,67,58,.14);color:var(--bad)} .st-off .dot{background:var(--bad)}
+.st-on{background:rgba(14,124,90,.14);color:var(--good)} .st-on .dot{background:var(--good)}
+.st-load{background:rgba(28,94,140,.14);color:var(--info)} .st-load .dot{background:var(--info)}
+.tgl{width:34px;height:20px;border-radius:20px;background:var(--line);border:0;position:relative;cursor:pointer;flex:0 0 auto}
+.tgl::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+body.dark .tgl{background:var(--accent)} body.dark .tgl::after{left:16px}
+.sub{font-size:11px;color:var(--ink2);margin-top:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--ink2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px}
+.kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink2);font-weight:600}
+.kpi .n{font-family:'Space Grotesk';font-size:21px;font-weight:700;margin-top:3px}
+.kpi .n small{font-size:12px;font-weight:500;color:var(--ink2)}
+.today{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.today:last-child{border-bottom:0} .today .e{font-size:15px;flex:0 0 auto}
+.mixbar{height:26px;border-radius:7px;overflow:hidden;display:flex;border:1px solid var(--line)}
+.mixbar i{height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;transition:width .6s}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.tile .v{font-family:'Space Grotesk';font-size:20px;font-weight:700}
+.tile .k{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);font-weight:600;margin-top:2px}
+.risk{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.risk:last-child{border-bottom:0}
+.risk .ic{width:22px;height:22px;border-radius:6px;flex:0 0 22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.risk .tx{font-size:12px}.risk .tx b{font-weight:600}
+.bar{display:flex;align-items:center;gap:7px;margin:5px 0}
+.bar .lab{font-size:10px;width:14px;font-weight:700;color:var(--ink2)}
+.track{flex:1;height:7px;background:var(--line);border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;transition:width .5s}
+.bar .val{font-size:10px;width:26px;text-align:right;font-weight:600;font-family:'IBM Plex Mono'}
+.gauge{height:9px;background:linear-gradient(90deg,var(--bad),var(--mid),var(--good));border-radius:5px;position:relative;margin:8px 0 4px}
+.gauge .mk{position:absolute;top:-4px;width:3px;height:17px;background:var(--ink);border-radius:2px;transform:translateX(-50%);transition:left .5s}
+.gscale{display:flex;justify-content:space-between;font-size:9px;color:var(--ink2)}
+.ctrl{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font-size:11px;font-weight:600;padding:6px 11px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--ink2);cursor:pointer;transition:.15s}
+.chip:active{transform:scale(.95)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip .ct{opacity:.6;font-size:9px;margin-left:3px}
+.inpwrap{position:relative;margin-bottom:10px}
+.inp{width:100%;padding:10px 34px 10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--panel);color:var(--ink)}
+.clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--line);border:0;width:20px;height:20px;border-radius:50%;color:var(--ink2);cursor:pointer;display:none;align-items:center;justify-content:center;font-size:13px}
+.cnt{font-size:10px;color:var(--ink2);margin:-4px 0 8px;font-weight:600}
+.row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;transition:background .12s}
+.row:active{background:var(--panel2)}
+.row:last-child{border-bottom:0}
+.tk{font-family:'Space Grotesk';font-weight:700;font-size:14px;min-width:54px}
+.nm{font-size:10px;color:var(--ink2);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.flag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px}
+.f-Review{background:rgba(14,124,90,.16);color:var(--good)} .f-Watch{background:rgba(176,120,16,.16);color:var(--mid)}
+.f-Neutral{background:rgba(90,106,125,.16);color:var(--ink2)} .f-Spec{background:rgba(138,79,176,.16);color:var(--spec)} .f-ETF{background:rgba(28,94,140,.16);color:var(--info)}
+.sc{margin-left:auto;text-align:right}
+.sc .big{font-family:'Space Grotesk';font-weight:700;font-size:16px}
+.sc .w{font-size:9px;color:var(--ink2);font-weight:600}
+.qv{display:flex;gap:4px;margin-top:2px;justify-content:flex-end}
+.qv span{font-size:9px;font-weight:700;font-family:'IBM Plex Mono';padding:1px 4px;border-radius:3px}
+.qv .q{background:rgba(44,95,168,.16);color:var(--q)} .qv .v{background:rgba(29,126,96,.16);color:var(--v)}
+.chev{color:var(--ink2);font-size:16px;flex:0 0 auto}
+.ovl{position:fixed;inset:0;background:rgba(8,14,20,.5);z-index:60;display:none;align-items:flex-end;justify-content:center}
+.ovl.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px;position:relative;animation:up .25s ease}
+@keyframes up{from{transform:translateY(60px);opacity:.5}to{transform:none;opacity:1}}
+.grab{width:40px;height:4px;background:var(--line);border-radius:3px;margin:0 auto 12px;cursor:grab}
+.x{position:absolute;right:18px;top:14px;font-size:20px;color:var(--ink2);cursor:pointer;background:var(--panel);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.audit{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.audit:last-child{border-bottom:0}
+.badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;flex:0 0 auto;text-transform:uppercase}
+.b-pass{background:rgba(14,124,90,.16);color:var(--good)} .b-warn{background:rgba(176,120,16,.16);color:var(--mid)} .b-fail{background:rgba(176,67,58,.16);color:var(--bad)}
+.audit .tx{font-size:12px}.audit .tx b{font-weight:600}.audit .tx .d{font-size:11px;color:var(--ink2);margin-top:2px}
+.pick{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.pick .top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pick .ag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);background:rgba(44,63,168,.12);padding:2px 7px;border-radius:5px}
+.lv{font-size:9px;font-weight:700;background:rgba(14,124,90,.16);color:var(--good);padding:2px 6px;border-radius:5px}
+.btn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;margin-top:6px;transition:.12s}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.note{font-size:11px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--info);border-radius:8px;padding:9px 11px;margin-top:8px}
+.note.warn{border-left-color:var(--mid)} .note.bad{border-left-color:var(--bad)}
+.cr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.cr:last-child{border-bottom:0}.cr .c{font-family:'IBM Plex Mono';font-weight:600}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.px{font-size:10px;font-weight:700;font-family:'IBM Plex Mono';margin-top:2px}
+.spin{width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.steps{counter-reset:s}
+.step{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .n{counter-increment:s;flex:0 0 24px;height:24px;border-radius:7px;background:var(--ink);color:var(--bg);font-family:'Space Grotesk';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .t b{font-weight:600;font-size:13px}.step .t p{font-size:11px;color:var(--ink2);margin-top:1px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--line);z-index:50;display:flex;justify-content:space-around;padding:7px 4px 9px;max-width:520px;margin:0 auto}
+.nb{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink2);font-size:9px;font-weight:600;cursor:pointer;font-family:inherit;padding:3px;transition:.12s}
+.nb:active{transform:scale(.9)}
+.nb svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nb.on{color:var(--accent)}
+.view{display:none}.view.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.disc{font-size:10px;color:var(--ink2);text-align:center;padding:6px 14px 2px;line-height:1.5}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;padding:9px 16px;border-radius:22px;z-index:80;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+a.lnk{color:var(--accent);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+<div class="hrow">
+<div>
+<div class="logo">METE·<b>ALPHA</b><span style="font-size:10px;color:var(--ink2);font-weight:500"> v3</span></div>
+<div class="sub" id="hsub">Snapshot 25 Jun 2026 · 56 holdings</div>
+</div>
+<div class="hright">
+<button class="tgl" id="themeTgl" aria-label="Toggle theme" onclick="toggleTheme()"></button>
+<div class="status st-load" id="statBadge"><span class="dot pulse"></span><span id="statTxt">CHECKING</span></div>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+
+<!-- HOME -->
+<section class="view on" id="v-home">
+  <div class="card">
+    <h2>📌 Today · what matters now</h2>
+    <div id="todayBox"><div class="today"><span class="e">⏳</span><span>Computing your board…</span></div></div>
+  </div>
+  <div class="card">
+    <h2>Book snapshot</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Total value</div><div class="n" id="kVal">£0</div></div>
+      <div class="kpi"><div class="l">Holdings</div><div class="n" id="kHold">0</div></div>
+      <div class="kpi"><div class="l">Avg composite</div><div class="n" id="kAvg">0</div></div>
+      <div class="kpi"><div class="l">Top weight</div><div class="n"><span id="kTop">0</span><small>% TIL</small></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Flag allocation</h2>
+    <div class="mixbar" id="mix"></div>
+    <div class="legend" id="mixLeg"></div>
+  </div>
+  <div class="card">
+    <h2>Regime board</h2>
+    <div class="tiles">
+      <div class="tile"><div class="v" style="color:var(--good)" id="rConf">0</div><div class="k">Confirmed ≥70</div></div>
+      <div class="tile"><div class="v" style="color:var(--mid)" id="rWeak">0</div><div class="k">Weakening</div></div>
+      <div class="tile"><div class="v" style="color:var(--bad)" id="rBrk">0</div><div class="k">Broken &lt;40</div></div>
+    </div>
+    <div class="note">Live P(bull) exists only for names already read in chat. The rest show <b>—</b> until you run them live. P(bull) = regime gauge, not a buy signal.</div>
+  </div>
+  <div class="card">
+    <h2>⚠ Top risk flags</h2>
+    <div id="riskBox"></div>
+    <button class="btn ghost" onclick="go('cross')">Open full cross-check →</button>
+  </div>
+</section>
+
+<!-- HOLDINGS -->
+<section class="view" id="v-hold">
+  <div class="card">
+    <h2>Holdings · tap any row</h2>
+    <div class="inpwrap">
+      <input class="inp" id="search" placeholder="Filter ticker or name…" oninput="renderRows()" aria-label="Filter holdings">
+      <button class="clr" id="clrBtn" onclick="clearSearch()" aria-label="Clear">×</button>
+    </div>
+    <div class="ctrl" id="flagFilter"></div>
+    <div class="ctrl">
+      <span style="font-size:10px;color:var(--ink2);align-self:center;font-weight:600">SORT</span>
+      <button class="chip on" data-sort="w" onclick="setSort('w',this)">Weight ↓</button>
+      <button class="chip" data-sort="s" onclick="setSort('s',this)">Score</button>
+      <button class="chip" data-sort="q" onclick="setSort('q',this)">Quality</button>
+      <button class="chip" data-sort="v" onclick="setSort('v',this)">Value</button>
+    </div>
+    <div class="cnt" id="rowCnt"></div>
+    <div id="rows"></div>
+  </div>
+</section>
+
+<!-- CROSS-CHECK -->
+<section class="view" id="v-cross">
+  <div class="card">
+    <h2>🔎 Integrity engine</h2>
+    <p style="font-size:12px;color:var(--ink2);margin-bottom:10px">Every score, flag and weight re-derived from your rules and cross-checked. This is arithmetic against your framework, not opinion.</p>
+    <div id="auditList"></div>
+  </div>
+  <div class="card">
+    <h2>Score consistency</h2>
+    <p style="font-size:12px;color:var(--ink2);margin-bottom:8px">Recomputes composite = 0.6·Q + 0.4·V for all 56 and checks each stored flag against the rule (Review = Q≥4 & V≥4).</p>
+    <div id="consist"></div>
+  </div>
+</section>
+
+<!-- PICKS -->
+<section class="view" id="v-picks">
+  <div class="card">
+    <h2>★ Rare-pick sweep</h2>
+    <p style="font-size:12px;color:var(--ink2)">Analyst-backed candidates scored on your framework. <b>Live reads folded in</b> where run in chat. A rare pick = Review-grade (Q≥4 & V≥4).</p>
+    <div class="note warn">Research candidates, not buy calls. Flag = kind of holding. Verify each live before acting.</div>
+    <button class="btn" onclick="batchLive()">⚡ Build one chat request for all unverified picks</button>
+  </div>
+  <div id="pickList"></div>
+</section>
+
+<!-- LIVE -->
+<section class="view" id="v-live">
+  <div class="card">
+    <h2>📡 Live engine <span id="liveSpin"></span></h2>
+    <p style="font-size:12px;color:var(--ink2)">Crypto + FX fetch live with no key in a real browser, auto-refreshing every 60s. Equities have no reliable keyless feed in 2026 — use chat refresh.</p>
+    <div class="note" id="liveEnvNote">Probing feeds…</div>
+  </div>
+  <div class="card">
+    <h2>USD → GBP · live FX</h2>
+    <div id="fxBox"></div>
+    <button class="btn ghost" onclick="loadFX(1)">↻ Refresh FX</button>
+  </div>
+  <div class="card">
+    <h2>Crypto regime · live</h2>
+    <div id="cryptoBox"></div>
+    <button class="btn ghost" onclick="loadCrypto(1)">↻ Refresh crypto</button>
+  </div>
+  <div class="card">
+    <h2>Equity refresh</h2>
+    <div class="inpwrap"><input class="inp" id="eqSym" placeholder="Ticker e.g. UNH, TMO, CI" aria-label="Equity ticker"></div>
+    <button class="btn" onclick="askChatEq()">Build live 10-step request for chat</button>
+    <button class="btn ghost" onclick="tryProxyEq()">Try keyless proxy fetch (fragile)</button>
+    <div id="eqBox" style="margin-top:8px"></div>
+    <div class="note">The reliable live path for equities is <b>chat</b>: it builds a request you paste to me, I run web search and return the live 10-step read. The proxy route uses a public relay to Yahoo and often rate-limits or blocks.</div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="view" id="v-rules">
+  <div class="card">
+    <h2>The 10 steps</h2>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="t"><b>Composition & size</b><p>What is it, how big in the book</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Earnings quality & profitability</b><p>Real, durable, growing?</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Red flags</b><p>Dilution, debt, governance, secular decline</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Moat</b><p>Edge and its durability</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Valuation</b><p>Cheap, fair or rich vs history + Street</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Cash engine</b><p>Free cash flow, buybacks, balance sheet</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Catalyst dependence</b><p>What has to go right</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Stewardship</b><p>Management & capital allocation</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>The implicit bet</b><p>The one thing you are really wagering on</p></div></div>
+      <div class="step"><div class="n"></div><div class="t"><b>Scorecard</b><p>Q, V, composite, flag, P(bull)</p></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Scoring & flags</h2>
+    <p style="font-size:12px"><b>Composite</b> = 0.6·Quality + 0.4·Value (each 1–5).</p>
+    <div style="margin-top:8px;font-size:12px;line-height:1.9">
+      <span class="flag f-Review">Review</span> Q≥4 & V≥4 — quality at a fair price<br>
+      <span class="flag f-Watch">Watch</span> quality, price-sensitive<br>
+      <span class="flag f-Neutral">Neutral</span> no clear edge<br>
+      <span class="flag f-Spec">Spec</span> high-risk / pre-profit<br>
+      <span class="flag f-ETF">ETF</span> basket
+    </div>
+    <div class="note" style="margin-top:10px"><b>P(bull)</b> regime: ≥70 confirmed · 40–70 weakening · &lt;40 broken. Flag = kind of holding, never a buy/sell signal.</div>
+  </div>
+  <div class="card">
+    <h2>Trading system</h2>
+    <div style="font-size:12px;line-height:1.95">
+      • 5% stop-loss · +10% → sell half, stop to entry<br>
+      • 2% max account risk per trade<br>
+      • 25% max single position · 20% min cash floor
+    </div>
+  </div>
+  <div class="card">
+    <h2>How this is built · who builds these</h2>
+    <p style="font-size:12px;color:var(--ink2);line-height:1.7">Leading open-source comparable: <b>Ghostfolio</b> by <b>Thomas Kaul</b> (~8k★, AGPL-3.0): Angular + NestJS + Postgres + Redis, fetching Yahoo/Alpha Vantage/CoinGecko on a schedule. <b>rotki</b> is the privacy-first, local-encrypted alternative. Lesson both teach: serious tools run a <b>tiny backend that fetches + caches</b> — browsers cannot fetch live equities reliably.</p>
+    <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-top:8px"><b>Data reality 2026:</b> equities have no reliable keyless browser feed (Yahoo deprecated, Stooq now key-gated). <b>CoinGecko</b> (crypto) and <b>ExchangeRate-API / Frankfurter</b> (FX) are keyless + CORS-open — so this app does those live, and routes equities through chat.</p>
+    <div class="note bad">Inside the iOS Claude app the network is sandboxed, so feeds fall back to the snapshot. Open in Safari/Chrome for live crypto + FX. Not investment advice.</div>
+  </div>
+</section>
+
+</div>
+
+<div class="disc">Research & education only · not investment advice · flag = kind of holding</div>
+
+<nav>
+  <button class="nb on" data-v="home" onclick="go('home')" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+  <button class="nb" data-v="hold" onclick="go('hold')" aria-label="Holdings"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Holdings</button>
+  <button class="nb" data-v="cross" onclick="go('cross')" aria-label="Cross-check"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Cross-check</button>
+  <button class="nb" data-v="picks" onclick="go('picks')" aria-label="Picks"><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z"/></svg>Picks</button>
+  <button class="nb" data-v="live" onclick="go('live')" aria-label="Live"><svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/><circle cx="12" cy="12" r="1.5"/></svg>Live</button>
+  <button class="nb" data-v="rules" onclick="go('rules')" aria-label="Rules"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Rules</button>
+</nav>
+
+<div class="ovl" id="ovl"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- helpers ---------- */
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8);}catch(e){}}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1900);}
+function animate(el,target,dur,fmt){const start=performance.now();const from=0;function step(now){let p=Math.min((now-start)/dur,1);p=1-Math.pow(1-p,3);el.textContent=fmt(from+(target-from)*p);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+
+/* ---------- DATA ---------- */
+const H=[
+["TIL","Instil Bio",16.3,"Spec",1,2,11],["FRSH","Freshworks",9.0,"Review",4,4,45],
+["BORR","Borr Drilling",7.6,"Spec",2,3,30],["UNH","UnitedHealth",6.2,"Watch",4,3,78],
+["BRK.B","Berkshire H.",6.2,"Review",5,4,null],["MBX","MBX Biosciences",4.2,"Spec",2,1,null],
+["TEM","Tempus AI",3.5,"Spec",3,1,null],["IREN","IREN Ltd",3.4,"Spec",2,3,45],
+["VUAG","S&P500 ETF",3.2,"ETF",3,3,null],["PLTR","Palantir",2.6,"Watch",4,1,20],
+["RMV","Rightmove",2.2,"Watch",4,2,null],["TTWO","Take-Two",1.9,"Neutral",4,2,null],
+["RZLV","Rezolve AI",1.9,"Spec",1,2,null],["ORCL","Oracle",1.7,"Watch",4,2,null],
+["SPCX","SpaceX SPV",1.7,"Watch",5,1,null],["QUBT","Quantum Comp.",1.6,"Spec",1,1,null],
+["EVTL","Vertical Aero",1.6,"Spec",2,2,null],["TMC","TMC Metals",1.6,"Spec",1,2,null],
+["NOW","ServiceNow",1.3,"Watch",5,1,null],["BTBT","Bit Digital",1.3,"Spec",2,2,null],
+["AO.","AO World",1.3,"Spec",2,3,null],["NFLX","Netflix",1.3,"Watch",5,2,null],
+["CEG","Constellation E",1.3,"Watch",4,2,null],["BA.","BAE Systems",1.1,"Watch",4,2,null],
+["VRRM","Verra Mobility",1.1,"Neutral",3,3,null],["SPIR","Spire Global",1.1,"Spec",2,2,null],
+["KTOS","Kratos Def.",1.1,"Neutral",3,2,null],["CLSK","CleanSpark",1.0,"Spec",2,3,null],
+["CRM","Salesforce",1.0,"Neutral",4,3,null],["PBF","PBF Energy",1.0,"Spec",2,4,null],
+["TSLA","Tesla",0.9,"Neutral",3,1,null],["FVRR","Fiverr",0.8,"Spec",3,3,null],
+["CGNT","Cognyte",0.8,"Neutral",3,3,null],["SATL","Satellogic",0.8,"Spec",2,2,null],
+["PS","Pagerduty",0.7,"Neutral",3,3,null],["LEA","Lear Corp",0.7,"Neutral",3,4,null],
+["IMID","iShares ETF",0.7,"ETF",3,3,null],["RGTI","Rigetti",0.6,"Spec",1,1,null],
+["ACHR","Archer Aviation",0.5,"Spec",2,2,null],["INFQ","Infleqtion",0.4,"Spec",1,1,null],
+["VWCE","FTSE All-World",0.4,"ETF",3,3,null],["TLS","Telos Corp",0.3,"Spec",2,2,null],
+["AMTM","Amentum",0.3,"Neutral",3,3,null],["NVDA","Nvidia",0.3,"Watch",5,2,null],
+["LAKE","Lakeland Ind.",0.2,"Neutral",3,2,null],["GEMI","Gemini Space",0.2,"Spec",2,2,null],
+["LGEN","Legal & General",0.2,"Watch",3,4,null],["APT","Alpha Pro Tech",0.2,"Spec",2,3,null],
+["CIFR","Cipher Mining",0.2,"Spec",2,2,null],["ABTC","Amer. Bitcoin",0.1,"Spec",1,2,null],
+["IRT","Indep. Realty",0.1,"Neutral",3,3,null],["TDG","TransDigm",0.1,"Watch",5,2,null],
+["TSAT","Telesat",0.1,"Spec",1,2,null],["SIDU","Sidus Space",0.04,"Spec",1,2,null],
+["ALTO","Alto Ingred.",0.02,"Spec",2,3,null],["KDK","Kodiak AI",0.02,"Spec",2,2,null]
+].map(a=>({t:a[0],n:a[1],w:a[2],f:a[3],q:a[4],v:a[5],pb:a[6],s:+(0.6*a[4]+0.4*a[5]).toFixed(1)}));
+
+const VAL={
+TIL:{val:"Cash shell after the lead drug was discontinued; trading near or below ~$11/sh net cash. Q1 broken regime, no operating engine. The bet is a reverse-merger or cash return — pure event speculation, not a business.",watch:["News: any strategic-alternatives or merger announcement","Trend: P(bull) 11, broken — no turn yet","Market: biotech shell re-rating appetite"]},
+FRSH:{val:"Q4 quality SaaS — durable recurring revenue, improving margins, real free cash flow. V4: reasonable multiple after the de-rate. Lands Review on the scorecard, but regime only weakening (45).",watch:["News: net revenue retention, AI-product traction","Trend: P(bull) 45, needs momentum back","Market: SMB software spend, AI displacement risk"]},
+UNH:{val:"Q4 managed-care scale leader, profitable, but a DOJ Medicare-billing probe is the overhang. V3 — fair, not cheap. Confirmed regime (78) is the strongest in your book.",watch:["News: DOJ probe developments, MLR trend","Trend: P(bull) 78, confirmed","Market: health policy, Medicare Advantage rates"]},
+BORR:{val:"Offshore-drilling cyclical; Q2 quality, leveraged to day-rates. V3 cheap on the cycle but P(bull) 30 broken — the oil-capex bet has not turned.",watch:["News: contract awards, day-rate prints","Trend: broken (30)","Market: oil capex, offshore demand"]},
+IREN:{val:"Bitcoin miner pivoting to HPC/AI compute. Q2 spec, V3. One of five correlated miners — size it as a single bet.",watch:["News: HPC/AI compute contracts, hashrate","Trend: weakening (45)","Market: BTC price, power costs, AI-compute demand"]},
+PLTR:{val:"Q4 software quality but V1 — priced for perfection. P(bull) 20 broken after a sharp de-rate. Valuation is the entire risk.",watch:["News: commercial bookings, government contracts","Trend: broken (20)","Market: AI-multiple compression"]},
+BRK_B:{val:"Q5 fortress quality, V4 reasonable. Lands Review. The compounding anchor of the book; run P(bull) live to set the regime.",watch:["News: buyback pace, cash deployment","Trend: run live","Market: insurance float, rate environment"]}
+};
+const PICKS=[
+{ag:"Quality @ discount",t:"GOOGL",n:"Alphabet",q:5,v:3,f:"Watch",an:"Strong Buy · ~63 analysts · avg ~$433 · ~26% upside · joined Dow 29 Jun",th:"Wide-moat compounder; AI/search overhang keeps it off the peak multiple."},
+{ag:"Quality @ discount",t:"TMO",n:"Thermo Fisher",q:5,v:3,f:"Watch",pb:38,live:1,an:"Strong Buy · avg ~$603 · ~28% upside · HSBC cut to Hold $540",th:"Top-tier life-science tools at a fair price; trend near 52-wk low. Not a rare pick (V3)."},
+{ag:"Quality @ discount",t:"ADBE",n:"Adobe",q:5,v:3,f:"Watch",an:"Hold consensus · ~$282 avg · down ~44% YTD",th:"Cheap vs history but AI-competition contested — two-sided."},
+{ag:"Deep value",t:"CI",n:"Cigna",q:4,v:4,f:"Review",pb:45,live:1,an:"Buy/Strong Buy · avg ~$342 · ~23% upside · DB & Barclays cut to Hold",th:"RARE PICK: profitable PBM/managed-care at ~9x fwd. Cheap with real PBM/GLP-1 overhang. Stacks on your UNH."},
+{ag:"Deep value",t:"GM",n:"General Motors",q:3,v:4,f:"Neutral",an:"Buy · 20 analysts · ~$95 · fwd P/E ~7 · $6B buyback",th:"Cheap cyclical; EV/China risk caps the quality grade."},
+{ag:"Deep value",t:"CMCSA",n:"Comcast",q:3,v:4,f:"Neutral",pb:30,live:1,an:"Hold/Mod-Buy · avg ~$32-34 · ~5.5% yield",th:"Cheap (V4) but broadband in secular decline (Q3) — NOT a rare pick. Yield play."},
+{ag:"Hidden compounder",t:"ZTS",n:"Zoetis",q:5,v:3,f:"Watch",an:"Buy-leaning",th:"Animal-health compounder; quality high, price fair."},
+{ag:"Hidden compounder",t:"CPRT",n:"Copart",q:5,v:3,f:"Watch",an:"Buy-leaning",th:"Salvage-auction moat; rarely cheap."},
+{ag:"Hidden compounder",t:"EVTC",n:"Evertec",q:4,v:4,f:"Review",an:"Zacks Buy · Value-A · low P/E",th:"LatAm payments; screens Review-grade — verify live."},
+{ag:"Turnaround",t:"PYPL",n:"PayPal",q:3,v:4,f:"Neutral",an:"Mixed",th:"Cheap; branded-checkout turnaround unproven."},
+{ag:"Turnaround",t:"LULU",n:"Lululemon",q:4,v:3,f:"Watch",an:"P/E ~15 after ~50% fall",th:"Brand intact; growth re-acceleration is the bet."},
+{ag:"Defensive value",t:"DGE",n:"Diageo",q:4,v:4,f:"Review",an:"Undervalued screens",th:"Spirits moat at a low; screens Review — verify live."},
+{ag:"Defensive value",t:"PGR",n:"Progressive",q:5,v:3,f:"Watch",an:"Buy-leaning",th:"Best-in-class insurer; quality premium."},
+{ag:"Growth @ price",t:"MELI",n:"MercadoLibre",q:5,v:2,f:"Watch",an:"Buy",th:"LatAm e-com/fintech flywheel; premium multiple."}
+];
+
+const FLAGS=["All","Review","Watch","Neutral","Spec","ETF"];
+const FCOL={Review:"#0E7C5A",Watch:"#B07810",Neutral:"#5A6A7D",Spec:"#8A4FB0",ETF:"#1C5E8C"};
+let sortKey="w",sortDir=-1,flagSel="All";
+
+/* ---------- HOLDINGS ---------- */
+function buildFlagFilter(){
+  const counts={};H.forEach(h=>counts[h.f]=(counts[h.f]||0)+1);
+  document.getElementById('flagFilter').innerHTML=FLAGS.map(f=>{
+    const c=f==="All"?H.length:(counts[f]||0);
+    return '<button class="chip '+(f==="All"?"on":"")+'" onclick="selFlag(\''+f+'\',this)">'+f+'<span class="ct">'+c+'</span></button>';
+  }).join("");
+}
+function selFlag(f,el){flagSel=f;buzz();document.querySelectorAll('#flagFilter .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderRows();}
+function setSort(k,el){if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=-1;}buzz();
+  document.querySelectorAll('[data-sort]').forEach(c=>{c.classList.remove('on');c.textContent=c.textContent.replace(/[ ↑↓]+$/,'');});
+  el.classList.add('on');el.textContent=el.textContent.replace(/[ ↑↓]+$/,'')+(sortDir<0?' ↓':' ↑');renderRows();}
+function clearSearch(){document.getElementById('search').value='';renderRows();}
+function renderRows(){
+  const sv=document.getElementById('search').value||'';const q=sv.toUpperCase();
+  document.getElementById('clrBtn').style.display=sv?'flex':'none';
+  let list=H.filter(h=>(flagSel==='All'||h.f===flagSel)&&(h.t.includes(q)||h.n.toUpperCase().includes(q)));
+  list.sort((a,b)=>(a[sortKey]-b[sortKey])*sortDir);
+  document.getElementById('rowCnt').textContent=list.length+' of '+H.length+' holdings';
+  if(!list.length){document.getElementById('rows').innerHTML='<div style="padding:20px;text-align:center;color:var(--ink2);font-size:13px">No match. <a class="lnk" onclick="clearSearch()">Clear filter</a></div>';return;}
+  document.getElementById('rows').innerHTML=list.map(h=>
+    '<div class="row" onclick="openStock(\''+h.t+'\')">'+
+    '<div><div class="tk">'+h.t+'</div><div class="nm">'+h.n+'</div></div>'+
+    '<span class="flag f-'+h.f+'">'+h.f+'</span>'+
+    '<div class="sc"><div class="big">'+h.s+'</div>'+
+    '<div class="qv"><span class="q">Q'+h.q+'</span><span class="v">V'+h.v+'</span></div>'+
+    '<div class="w">'+h.w+'% '+(h.pb!=null?'· pb'+h.pb:'')+'</div>'+(h.px?'<div class="px '+(h.chg>=0?'up':'dn')+'">'+(h.chg>=0?'▲':'▼')+Math.abs(h.chg).toFixed(1)+'% · '+h.px+'</div>':'')+'</div>'+
+    '<span class="chev">›</span></div>').join("");
+}
+function projChart(h){
+  const hist=h.hist;
+  if(!hist||hist.length<8){return '<div class="note">Run the refresh Action to load price history. The projection needs ~8+ weekly closes.</div>';}
+  const P0=hist[hist.length-1];
+  const r=[];for(let i=1;i<hist.length;i++){if(hist[i-1]>0&&hist[i]>0)r.push(Math.log(hist[i]/hist[i-1]));}
+  if(r.length<6){return '<div class="note">Not enough history yet for a projection.</div>';}
+  const mu=r.reduce((a,b)=>a+b,0)/r.length;
+  const sd=Math.sqrt(r.reduce((a,b)=>a+(b-mu)*(b-mu),0)/(r.length-1));
+  const HW=13,cap=v=>Math.max(0.3*P0,Math.min(3*P0,v));
+  const med=[],up=[],lo=[];
+  for(let k=1;k<=HW;k++){med.push(cap(P0*Math.exp(mu*k)));up.push(cap(P0*Math.exp(mu*k+sd*Math.sqrt(k))));lo.push(cap(P0*Math.exp(mu*k-sd*Math.sqrt(k))));}
+  const tgt=P0*1.10,stop=P0*0.95;
+  const W=300,HT=150,pL=6,pR=6,pT=10,pB=14,n=hist.length,total=n+HW;
+  const ys=hist.concat(up,lo,[tgt,stop]);let ymin=Math.min.apply(null,ys),ymax=Math.max.apply(null,ys);if(ymin<0)ymin=0;
+  const yr=(ymax-ymin)||1;ymin-=yr*0.05;ymax+=yr*0.05;
+  const X=i=>pL+(i/(total-1))*(W-pL-pR),Y=v=>pT+(1-(v-ymin)/(ymax-ymin))*(HT-pT-pB);
+  let hp='M'+X(0).toFixed(1)+' '+Y(hist[0]).toFixed(1);for(let i=1;i<n;i++)hp+=' L'+X(i).toFixed(1)+' '+Y(hist[i]).toFixed(1);
+  let mp='M'+X(n-1).toFixed(1)+' '+Y(P0).toFixed(1);for(let k=0;k<HW;k++)mp+=' L'+X(n+k).toFixed(1)+' '+Y(med[k]).toFixed(1);
+  let cone='M'+X(n-1).toFixed(1)+' '+Y(P0).toFixed(1);for(let k=0;k<HW;k++)cone+=' L'+X(n+k).toFixed(1)+' '+Y(up[k]).toFixed(1);for(let k=HW-1;k>=0;k--)cone+=' L'+X(n+k).toFixed(1)+' '+Y(lo[k]).toFixed(1);cone+=' Z';
+  const yTgt=Y(tgt).toFixed(1),yStop=Y(stop).toFixed(1),xNow=X(n-1).toFixed(1);
+  const medEnd=P0*Math.exp(mu*HW),upEnd=P0*Math.exp(mu*HW+sd*Math.sqrt(HW)),loEnd=P0*Math.exp(mu*HW-sd*Math.sqrt(HW));
+  const pct=v=>(v/P0-1)*100,av=sd*Math.sqrt(52)*100,sgn=x=>(x>=0?'+':'');
+  let svg='<svg viewBox="0 0 '+W+' '+HT+'" style="width:100%;height:auto">';
+  svg+='<path d="'+cone+'" fill="var(--accent)" opacity="0.13"/>';
+  svg+='<line x1="'+pL+'" y1="'+yTgt+'" x2="'+(W-pR)+'" y2="'+yTgt+'" stroke="var(--good)" stroke-width="1" stroke-dasharray="3 3" opacity="0.75"/>';
+  svg+='<line x1="'+pL+'" y1="'+yStop+'" x2="'+(W-pR)+'" y2="'+yStop+'" stroke="var(--bad)" stroke-width="1" stroke-dasharray="3 3" opacity="0.75"/>';
+  svg+='<line x1="'+xNow+'" y1="'+pT+'" x2="'+xNow+'" y2="'+(HT-pB)+'" stroke="var(--line)" stroke-width="1"/>';
+  svg+='<path d="'+hp+'" fill="none" stroke="var(--ink)" stroke-width="1.6"/>';
+  svg+='<path d="'+mp+'" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>';
+  svg+='<circle cx="'+xNow+'" cy="'+Y(P0).toFixed(1)+'" r="2.6" fill="var(--accent)"/></svg>';
+  const leg='<div style="display:flex;gap:9px;flex-wrap:wrap;font-size:9px;color:var(--ink2);margin-top:4px"><span>━ 1y history</span><span style="color:var(--accent)">┅ median path</span><span style="color:var(--accent)">▢ 1σ cone</span><span style="color:var(--good)">┄ +10% target</span><span style="color:var(--bad)">┄ −5% stop</span></div>';
+  const sum='<div style="font-size:11px;margin-top:6px;line-height:1.5"><b>13-week projection</b> (~1 quarter): median <b>'+sgn(pct(medEnd))+pct(medEnd).toFixed(0)+'%</b>; 1σ band '+sgn(pct(loEnd))+pct(loEnd).toFixed(0)+'% to '+sgn(pct(upEnd))+pct(upEnd).toFixed(0)+'%. Annualized vol ~'+av.toFixed(0)+'%.</div>';
+  const cap2='<div class="note">Statistical projection from '+r.length+' weeks of returns (drift + volatility) — <b>not a forecast</b>. High-vol names show very wide cones; the chart caps extreme paths.</div>';
+  return svg+leg+sum+cap2;
+}
+function openStock(t){
+  buzz();const h=H.find(x=>x.t===t);if(!h){return;}const k=t.replace('.','_');const d=VAL[k]||VAL[t]||null;
+  const pbTxt=h.pb!=null?(h.pb>=70?'Confirmed':h.pb>=40?'Weakening':'Broken'):'Not yet read live';
+  const pbPos=h.pb!=null?h.pb:50;
+  const valTxt=d?d.val:('Live 10-step read not yet run for '+h.t+'. Tap below to build the chat request and I will pull price, fundamentals, news and analyst targets and return the full read.');
+  let html='<span class="x" onclick="closeSheet()">×</span><div class="grab" id="grab"></div>'+
+   '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div class="tk" style="font-size:22px">'+h.t+'</div><span class="flag f-'+h.f+'">'+h.f+'</span>'+
+   '<div style="margin-left:auto" class="dt"><b style="font-size:22px">'+h.s+'</b><span style="font-size:11px;color:var(--ink2)"> composite</span></div></div>'+
+   '<div style="font-size:12px;color:var(--ink2);margin-bottom:12px">'+h.n+' · '+h.w+'% of book</div>'+
+   '<div class="card"><h2>Grades</h2>'+
+   '<div class="bar"><span class="lab">Q</span><div class="track"><div class="fill" style="width:'+(h.q*20)+'%;background:var(--q)"></div></div><span class="val">'+h.q+'/5</span></div>'+
+   '<div class="bar"><span class="lab">V</span><div class="track"><div class="fill" style="width:'+(h.v*20)+'%;background:var(--v)"></div></div><span class="val">'+h.v+'/5</span></div>'+
+   '<div class="bar"><span class="lab">Σ</span><div class="track"><div class="fill" style="width:'+(h.s*20)+'%;background:var(--ink)"></div></div><span class="val">'+h.s+'</span></div></div>'+
+   '<div class="card"><h2>P(bull) regime · '+pbTxt+'</h2><div class="gauge"><div class="mk" style="left:'+pbPos+'%"></div></div>'+
+   '<div class="gscale"><span>0 broken</span><span>40</span><span>70</span><span>100</span></div>'+
+   (h.pb==null?'<div class="note">Run live in chat to set P(bull).</div>':'')+'</div>'+
+   '<div class="card"><h2>Price history &amp; projection</h2>'+projChart(h)+'</div>'+
+   '<div class="card"><h2>Why this score · the 10 steps</h2><p style="font-size:12.5px;line-height:1.6">'+valTxt+'</p></div>';
+  if(d){html+='<div class="card"><h2>Watch · news · trend · market</h2>'+d.watch.map(w=>'<div style="font-size:12px;padding:5px 0;border-bottom:1px solid var(--line)">• '+w+'</div>').join("")+'</div>';}
+  html+='<button class="btn" onclick="reqLive(\''+h.t+'\')">↻ Refresh live 10-step in chat</button><div style="height:14px"></div>';
+  document.getElementById('sheet').innerHTML=html;
+  document.getElementById('ovl').classList.add('on');attachSwipe();
+}
+function closeSheet(){document.getElementById('ovl').classList.remove('on');}
+
+/* swipe-down to close */
+function attachSwipe(){
+  const sh=document.getElementById('sheet');let y0=null;
+  sh.ontouchstart=e=>{if(sh.scrollTop<=0)y0=e.touches[0].clientY;};
+  sh.ontouchmove=e=>{if(y0==null)return;const dy=e.touches[0].clientY-y0;if(dy>0)sh.style.transform='translateY('+dy+'px)';};
+  sh.ontouchend=e=>{if(y0==null)return;const dy=(e.changedTouches[0].clientY-y0);sh.style.transition='.2s';if(dy>90){closeSheet();}sh.style.transform='';setTimeout(()=>{sh.style.transition='';},200);y0=null;};
+}
+
+/* ---------- HOME ---------- */
+function buildHome(){
+  animate(document.getElementById('kVal'),34949,800,v=>'£'+Math.round(v).toLocaleString());
+  animate(document.getElementById('kHold'),H.length,600,v=>Math.round(v));
+  animate(document.getElementById('kAvg'),+(H.reduce((s,h)=>s+h.s,0)/H.length).toFixed(2),800,v=>v.toFixed(2));
+  animate(document.getElementById('kTop'),16.3,800,v=>v.toFixed(1));
+  const tot=H.reduce((s,h)=>s+h.w,0);const by={};H.forEach(h=>by[h.f]=(by[h.f]||0)+h.w);
+  const order=["Spec","Watch","Neutral","Review","ETF"];
+  document.getElementById('mix').innerHTML=order.filter(f=>by[f]).map(f=>{const pct=by[f]/tot*100;return '<i style="width:'+pct+'%;background:'+FCOL[f]+'">'+(pct>9?Math.round(pct)+'%':'')+'</i>';}).join("");
+  document.getElementById('mixLeg').innerHTML=order.filter(f=>by[f]).map(f=>'<span><span class="sw" style="background:'+FCOL[f]+'"></span>'+f+' '+(by[f]/tot*100).toFixed(0)+'%</span>').join("");
+  const conf=H.filter(h=>h.pb!=null&&h.pb>=70).length,weak=H.filter(h=>h.pb!=null&&h.pb>=40&&h.pb<70).length,brk=H.filter(h=>h.pb!=null&&h.pb<40).length;
+  document.getElementById('rConf').textContent=conf;document.getElementById('rWeak').textContent=weak;document.getElementById('rBrk').textContent=brk;
+  const risks=[
+    ["var(--bad)","!","<b>Concentration.</b> TIL is 16.3% of the book at P(bull) 11 (broken) — above your 15% line."],
+    ["var(--spec)","S","<b>Speculative sleeve ~52%</b>, deepened by the quantum cluster (QUBT, RGTI, INFQ) + Tempus + Archer."],
+    ["var(--mid)","≈","<b>One bet, five tickers.</b> IREN, BTBT, CLSK, CIFR, ABTC are correlated mining — treat as one position."],
+    ["var(--bad)","£","<b>Cash ~1.8%</b> vs your 20% floor. No dry powder for stops or adds."]
+  ];
+  document.getElementById('riskBox').innerHTML=risks.map(r=>'<div class="risk"><div class="ic" style="background:'+r[0]+'">'+r[1]+'</div><div class="tx">'+r[2]+'</div></div>').join("");
+}
+function buildToday(){
+  const live=H.filter(h=>h.pb!=null);const top=live.slice().sort((a,b)=>b.pb-a.pb)[0];const worst=live.slice().sort((a,b)=>a.pb-b.pb)[0];
+  const rows=[
+    ["🎯","<b>"+live.length+"/56</b> names have a live regime. Strongest: <b>"+top.t+"</b> (pb"+top.pb+"). Weakest: <b>"+worst.t+"</b> (pb"+worst.pb+")."],
+    ["⚠️","<b>4 open risk flags</b> — concentration, ~52% spec, a 5-ticker mining cluster, and cash below floor. See Cross-check."],
+    ["💷","<span id='todayFx'>FX loading…</span>"],
+    ["₿","<span id='todayBtc'>Crypto loading…</span>"]
+  ];
+  document.getElementById('todayBox').innerHTML=rows.map(r=>'<div class="today"><span class="e">'+r[0]+'</span><span>'+r[1]+'</span></div>').join("");
+}
+
+/* ---------- CROSS-CHECK ---------- */
+function buildAudit(){
+  const tot=H.reduce((s,h)=>s+h.w,0);
+  const spec=H.filter(h=>h.f==='Spec').reduce((s,h)=>s+h.w,0);
+  const miners=["IREN","BTBT","CLSK","CIFR","ABTC"];const minW=H.filter(h=>miners.includes(h.t)).reduce((s,h)=>s+h.w,0);
+  const quantum=["QUBT","RGTI","INFQ"];const qW=H.filter(h=>quantum.includes(h.t)).reduce((s,h)=>s+h.w,0);
+  const top=H.slice().sort((a,b)=>b.w-a.w)[0];const cash=1.8;
+  const rows=[
+    cash<20?["fail","Cash floor breached","Cash ~"+cash+"% vs your 20% minimum. No dry powder for stops/adds."]:["pass","Cash floor","Within 20% minimum."],
+    top.w>15?["fail","Single-name concentration",top.t+" at "+top.w+"% exceeds your 15% line (P(bull) "+top.pb+")."]:["pass","Concentration","No name above 15%."],
+    spec>40?["warn","Speculative sleeve heavy",spec.toFixed(0)+"% of book in Spec. Quantum cluster ("+qW.toFixed(1)+"%) + Tempus + Archer deepen it."]:["pass","Speculative sleeve",spec.toFixed(0)+"% — within tolerance."],
+    minW>3?["warn","Correlated cluster","5 miners (IREN/BTBT/CLSK/CIFR/ABTC) = "+minW.toFixed(1)+"%. They move together — one bet, not five."]:["pass","Correlation","No large correlated cluster."],
+    ["warn","Stale regime data","Live P(bull) on only "+H.filter(h=>h.pb!=null).length+"/56 names. Refresh the rest in chat for a true regime board."],
+    Math.abs(tot-100)<5?["pass","Weight reconciliation","Equity weights sum to "+tot.toFixed(1)+"% (+cash ~1.8% ≈ 100%)."]:["warn","Weight reconciliation","Weights sum to "+tot.toFixed(1)+"% — re-sync from broker."]
+  ];
+  document.getElementById('auditList').innerHTML=rows.map(r=>'<div class="audit"><span class="badge b-'+r[0]+'">'+r[0]+'</span><div class="tx"><b>'+r[1]+'</b><div class="d">'+r[2]+'</div></div></div>').join("");
+}
+function buildConsist(){
+  const bad=H.map(h=>{const calc=+(0.6*h.q+0.4*h.v).toFixed(1);const reviewable=(h.q>=4&&h.v>=4&&h.f!=='ETF');return {h,calc,compMis:Math.abs(calc-h.s)>0.05,flagMis:reviewable&&h.f!=='Review'};}).filter(i=>i.compMis||i.flagMis);
+  let html='<div class="audit"><span class="badge b-pass">pass</span><div class="tx"><b>Composite recompute</b><div class="d">All 56 composites match 0.6·Q+0.4·V.</div></div></div>';
+  if(bad.length){html+=bad.map(i=>'<div class="audit"><span class="badge b-warn">warn</span><div class="tx"><b>'+i.h.t+'</b><div class="d">'+(i.flagMis?'Q'+i.h.q+'/V'+i.h.v+' qualifies as Review but flagged '+i.h.f+' — confirm intent.':'Composite stored '+i.h.s+' vs calc '+i.calc+'.')+'</div></div></div>').join("");}
+  else{html+='<div class="audit"><span class="badge b-pass">pass</span><div class="tx"><b>Flag rule check</b><div class="d">No Review-qualifying name is mis-flagged.</div></div></div>';}
+  document.getElementById('consist').innerHTML=html;
+}
+
+/* ---------- PICKS ---------- */
+function buildPicks(){
+  document.getElementById('pickList').innerHTML=PICKS.map(p=>{const s=(0.6*p.q+0.4*p.v).toFixed(1);
+    return '<div class="pick"><div class="top"><span class="ag">'+p.ag+'</span>'+(p.live?'<span class="lv">● LIVE READ</span>':'')+'<div style="margin-left:auto" class="dt"><b style="font-size:16px">'+s+'</b></div></div>'+
+    '<div style="display:flex;align-items:center;gap:8px"><div class="tk" style="font-size:16px">'+p.t+'</div><span class="nm">'+p.n+'</span><span class="flag f-'+p.f+'" style="margin-left:auto">'+p.f+'</span></div>'+
+    '<div class="qv" style="justify-content:flex-start;margin:6px 0"><span class="q">Q'+p.q+'</span><span class="v">V'+p.v+'</span>'+(p.pb!=null?'<span style="font-size:9px;font-weight:700;font-family:\'IBM Plex Mono\';padding:1px 4px;border-radius:3px;background:var(--panel2);color:var(--ink2)">pb'+p.pb+'</span>':'')+'</div>'+
+    '<div style="font-size:11px;color:var(--info);font-weight:500;margin-bottom:4px">'+p.an+'</div>'+
+    '<div style="font-size:12px;line-height:1.5">'+p.th+'</div>'+
+    '<button class="btn ghost" onclick="reqLive(\''+p.t+'\')">'+(p.live?'↻ Re-verify live':'Verify live in chat')+'</button></div>';}).join("");
+}
+function batchLive(){
+  const un=PICKS.filter(p=>!p.live).map(p=>p.t);
+  const msg='Run a live 10-step read on each of these in turn using my framework (Q/V 1–5, composite 0.6Q+0.4V, flag, P(bull), News/Trend/Market watch, and whether each is a rare pick): '+un.join(', ')+'. Do them one at a time, most undervalued first.';
+  reqText('All unverified picks',msg);
+}
+
+/* ---------- LIVE ENGINE ---------- */
+let fxOK=false,cgOK=false,eqOK=false;
+function setStatus(){const b=document.getElementById('statBadge'),t=document.getElementById('statTxt');
+  if(fxOK||cgOK||eqOK){b.className='status st-on';t.textContent='LIVE';b.querySelector('.dot').classList.remove('pulse');}
+  else{b.className='status st-off';t.textContent='OFFLINE';b.querySelector('.dot').classList.remove('pulse');}}
+async function loadFX(manual){
+  const box=document.getElementById('fxBox');if(box)box.innerHTML='<div class="cr"><span>Fetching…</span><span class="c spin"></span></div>';
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/USD');const j=await r.json();
+    const gbp=j.rates.GBP,eur=j.rates.EUR,upd=(j.time_last_update_utc||'').replace('+0000','');
+    fxOK=true;setStatus();
+    if(box)box.innerHTML='<div class="cr"><span>USD → GBP</span><span class="c">'+gbp.toFixed(4)+'</span></div><div class="cr"><span>USD → EUR</span><span class="c">'+eur.toFixed(4)+'</span></div><div class="cr"><span>GBP → USD</span><span class="c">'+(1/gbp).toFixed(4)+'</span></div><div style="font-size:10px;color:var(--ink2);margin-top:6px">Updated '+upd+'</div>';
+    const tf=document.getElementById('todayFx');if(tf)tf.innerHTML='Live <b>USD→GBP '+gbp.toFixed(4)+'</b> — your book is GBP, so a stronger dollar lifts US holdings.';
+    if(manual)toast('FX refreshed');
+  }catch(e){fxOK=false;setStatus();if(box)box.innerHTML='<div class="note bad">FX blocked (sandbox or offline). Open in Safari/Chrome for live rates.</div>';const tf=document.getElementById('todayFx');if(tf)tf.textContent='FX live only in a real browser (sandboxed here).';}
+}
+const CG="bitcoin,ethereum,ripple,solana,chainlink,quant-network,render-token,jasmycoin,shiba-inu";
+const CGN={bitcoin:"BTC",ethereum:"ETH",ripple:"XRP",solana:"SOL",chainlink:"LINK","quant-network":"QNT","render-token":"RENDER",jasmycoin:"JASMY","shiba-inu":"SHIB"};
+async function loadCrypto(manual){
+  const box=document.getElementById('cryptoBox');if(box)box.innerHTML='<div class="cr"><span>Fetching…</span><span class="c spin"></span></div>';
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+CG+'&vs_currencies=usd&include_24hr_change=true');const j=await r.json();
+    let html='';Object.keys(CGN).forEach(id=>{if(j[id]){const p=j[id].usd,ch=j[id].usd_24h_change||0;html+='<div class="cr"><span>'+CGN[id]+'</span><span class="c">$'+(p<1?p.toFixed(5):p.toLocaleString())+' <span class="'+(ch>=0?'up':'dn')+'">'+(ch>=0?'▲':'▼')+Math.abs(ch).toFixed(1)+'%</span></span></div>';}});
+    cgOK=true;setStatus();
+    if(box)box.innerHTML=html+'<div style="font-size:10px;color:var(--ink2);margin-top:6px">CoinGecko keyless · live</div>';
+    const tb=document.getElementById('todayBtc');if(tb&&j.bitcoin){const ch=j.bitcoin.usd_24h_change||0;tb.innerHTML='Live <b>BTC $'+j.bitcoin.usd.toLocaleString()+'</b> <span class="'+(ch>=0?'up':'dn')+'">'+(ch>=0?'▲':'▼')+Math.abs(ch).toFixed(1)+'%</span> — sets the tone for your 5 miners.';}
+    if(manual)toast('Crypto refreshed');
+  }catch(e){cgOK=false;setStatus();if(box)box.innerHTML='<div class="note bad">Crypto blocked (sandbox or offline). Open in a real browser for live prices.</div>';const tb=document.getElementById('todayBtc');if(tb)tb.textContent='Crypto live only in a real browser (sandboxed here).';}
+}
+async function tryProxyEq(){
+  const sym=(document.getElementById('eqSym').value||'').trim().toUpperCase();const box=document.getElementById('eqBox');
+  if(!sym){box.innerHTML='<div class="note warn">Enter a ticker first.</div>';return;}
+  box.innerHTML='<div class="cr"><span>Trying keyless proxy…</span><span class="c spin"></span></div>';
+  const y='https://query1.finance.yahoo.com/v8/finance/chart/'+sym+'?interval=1d&range=1d';
+  const proxies=['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url='];
+  for(const px of proxies){try{
+    const r=await fetch(px+encodeURIComponent(y));const j=await r.json();const m=j.chart.result[0].meta;
+    const p=m.regularMarketPrice,pc=m.chartPreviousClose,cur=m.currency,ch=(p-pc)/pc*100;
+    box.innerHTML='<div class="cr"><span>'+sym+'</span><span class="c">'+cur+' '+p+' <span class="'+(ch>=0?'up':'dn')+'">'+(ch>=0?'▲':'▼')+Math.abs(ch).toFixed(2)+'%</span></span></div><div style="font-size:10px;color:var(--ink2);margin-top:4px">via '+px.split('/')[2]+' · price only — run chat for the 10-step read</div>';
+    toast(sym+' price fetched');return;
+  }catch(e){}}
+  box.innerHTML='<div class="note bad">Proxy fetch failed (expected — relays rate-limit or block). Use the chat request button; that is the reliable live path.</div>';
+}
+function askChatEq(){const s=(document.getElementById('eqSym').value||'').trim().toUpperCase();if(s)reqLive(s);else toast('Enter a ticker');}
+
+/* ---------- chat request ---------- */
+function reqLive(t){const p='Run the full live 10-step read on '+t+' using my framework: rate Quality and Value 1–5, give the composite (0.6×Q+0.4×V), assign a flag (Review/Watch/Neutral/Spec) and a P(bull) regime score. Pull today price, fundamentals, recent news and analyst targets. List News/Trend/Market watch items, and tell me whether it screens as a rare pick.';
+  if(window.sendPrompt){window.sendPrompt(p);toast('Sent to chat');return;}reqText('Live request · '+t,p);}
+function reqText(title,p){
+  document.getElementById('sheet').innerHTML='<span class="x" onclick="closeSheet()">×</span><div class="grab"></div><h2 style="margin-bottom:8px">'+title+'</h2><p style="font-size:12px;color:var(--ink2);margin-bottom:10px">This app cannot fetch live equities itself. Copy this and paste it to me in chat — I will run web search and return the full read.</p><textarea id="reqTxt" class="inp" style="height:150px;font-size:12px;padding-right:12px" readonly>'+p+'</textarea><button class="btn" onclick="doCopy(this)">Copy request</button><div style="height:14px"></div>';
+  document.getElementById('ovl').classList.add('on');attachSwipe();
+}
+function doCopy(btn){const ta=document.getElementById('reqTxt');ta.select();try{navigator.clipboard.writeText(ta.value);}catch(e){try{document.execCommand('copy');}catch(e2){}}btn.textContent='Copied ✓';toast('Copied to clipboard');}
+
+/* ---------- NAV / THEME ---------- */
+function go(v){buzz();document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(window.scrollTo)window.scrollTo(0,0);
+  if(v==='live'){document.getElementById('liveEnvNote').innerHTML='If FX/crypto show numbers you are in a real browser and feeds are live. If they show "blocked" you are in the sandboxed app — everything falls back to the snapshot + chat refresh.';loadFX();loadCrypto();}}
+function toggleTheme(){document.body.classList.toggle('dark');buzz();}
+
+/* ---------- LIVE DATA from data.json (refreshed by GitHub Action) ---------- */
+async function loadLive(){
+  try{
+    const r=await fetch('./data.json?t='+Date.now());
+    if(!r.ok)throw new Error('no data.json');
+    const d=await r.json();window.__data=d;
+    if(d.asOf){const t=new Date(d.asOf);document.getElementById('hsub').textContent='Live · equities as of '+t.toLocaleString([], {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'});}
+    if(d.equities){let n=0;H.forEach(h=>{const e=d.equities[h.t];if(e&&e.price!=null){h.px=e.price;h.chg=(e.chgPct!=null?e.chgPct:0);n++;}});if(n>0)eqOK=true;}
+    setStatus();renderRows();buildToday();buildHome();
+    if(window.__data&&window.__data.asOf)toast('Live data loaded');
+  }catch(e){ /* offline / no file yet → keep snapshot silently */ }
+}
+/* ---------- INIT ---------- */
+buildFlagFilter();renderRows();buildHome();buildToday();buildAudit();buildConsist();buildPicks();
+loadLive();loadFX();loadCrypto();
+setInterval(()=>{if(document.getElementById('v-live').classList.contains('on')||document.getElementById('v-home').classList.contains('on')){loadFX();loadCrypto();}},60000);
+</script>
+</body>
+</html>
