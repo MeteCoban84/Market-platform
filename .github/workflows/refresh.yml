@@ -1,13 +1,7 @@
 name: refresh-market-data
-
-on:
-  schedule:
-    - cron: '*/15 8-21 * * 1-5'
-  workflow_dispatch:
-
+on: { workflow_dispatch: {}, schedule: [ { cron: '*/15 8-21 * * 1-5' } ] }
 permissions:
   contents: write
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
